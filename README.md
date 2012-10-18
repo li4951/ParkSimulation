@@ -6,3 +6,5 @@ In this project, I use the Java language.
 All software process was done by myself, so there exists so many problems and weaknesses.
 Welcome to communicate with me and give my some suggestion.
 Hope your suggesion! Thank you.
+
+The comment in the source code and design document are written in Chinese. So Proficiency in Chinese is needed.
