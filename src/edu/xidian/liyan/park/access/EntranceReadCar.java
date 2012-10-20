@@ -2,10 +2,10 @@ package edu.xidian.liyan.park.access;
 
 import org.apache.log4j.Logger;
 
+import edu.xidian.liyan.employee.Employee;
+import edu.xidian.liyan.employee.EmployeeDao;
 import edu.xidian.liyan.park.car.Car;
 import edu.xidian.liyan.park.car.DeadCar;
-import edu.xidian.liyan.park.car.Employee;
-import edu.xidian.liyan.park.car.EmployeeDao;
 import edu.xidian.liyan.park.parkinglot.ParkingLot;
 
 /**

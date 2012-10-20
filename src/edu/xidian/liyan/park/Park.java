@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import edu.xidian.liyan.employee.EmployeeDao;
 import edu.xidian.liyan.log.LogInfo;
 import edu.xidian.liyan.log.WriterLogInfo;
 import edu.xidian.liyan.park.access.*;
@@ -27,10 +28,6 @@ public class Park {
 	private ParkingLot parkingLot;
 	//所有车辆集合
 	private List<Car> cars;
-	//配置参数：员工数量
-	private int e;
-	//配置参数：单排车位数
-	private int n;
 	//日志文件输出对象
 	private WriterLogInfo writerLogInfo = new WriterLogInfo();
 	
@@ -38,23 +35,21 @@ public class Park {
 	private EntranceReadCar entranceCar;
 	private DeadCar exitCar;
 	
-	public Park(int e, int n) {
-		this.e = e;
-		this.n = n;
+	public Park(int n) {
 		entrance = Entrance.getInstance();
 		exit = Exit.getInstance();
 		parkingLot = ParkingLot.getInstance();
 		parkingLot.initParkingLot(n);
-		EmployeeDao.getInstance().initEmployees(e);
 		cars = new ArrayList<Car>();
 		logger.debug("Init success");
 	}
-	
+
 	/**
 	 * 停车场系统仿真函数，每秒钟刷新一次各相关对象状态
 	 */
 	public void simulate(){
-		int timeCount = 0;
+		int simulateTimeTotal = 250; //仿真总时间
+		int timeCount = 0;	//时间计数器
 		int amountIn = 0;
 		int amountOut = 0;
 		int parkingTimeSum = 0;
@@ -62,24 +57,24 @@ public class Park {
 		writerLogInfo.setTimeSimulateBegin(Calendar.getInstance());		
 		while(true){
 			System.out.println("第" + timeCount++ +"秒后");
+			
 			//每隔一分钟报告一次写入日志文件
 			if(timeCount != 0 && timeCount % 60 == 0){
 				LogInfo logInfo = new LogInfo(parkingLot.getSize(), amountIn, amountOut, amountOut==0? 0 : parkingTimeSum / amountOut);
 				writerLogInfo.addInfo(logInfo);
-				if(timeCount > 250 && parkingLot.getSize()== 0){
+				if(timeCount > simulateTimeTotal && parkingLot.getSize()== 0){
 					break;
 				}
 			}
-			//1:入口空闲 2:场内没满 3:(为仿真方便，前250秒内) 产生新的入场车
-			if(!Entrance.getInstance().isUsed() && !parkingLot.isFull() && timeCount < 250){
-				Car randomCar = CarFactory.produceCar(e);
-				if(randomCar != null){
-					cars.add(randomCar);
-				}
-			}
+			
+			//1:入口空闲 2:场内没满 3:(为仿真方便，前simulateTimeTotal秒内) 产生新的入场车
+			boolean suitableToCreate = !Entrance.getInstance().isUsed() && !parkingLot.isFull() && timeCount < simulateTimeTotal;
+			createNewCar(suitableToCreate);
+			
 			//入口和出口对象每秒检查操作是否完成，并更新状态，例如栏杆是否完全降下，修改栏杆状态
 			entrance.refresh();
 			exit.refresh();
+			
 			//刷新所有车辆对象的状态
 			int deleteCarNum = -1;
 			for(int i = 0; i < cars.size(); i++){
@@ -115,11 +110,20 @@ public class Park {
 				e.printStackTrace();
 			}
 			
-			
 			System.out.print("过了1秒，");
 		}
 		writerLogInfo.setTimeSimulateEnd(Calendar.getInstance());
 		writerLogInfo.writeToFile();
+	}
+
+	//产生新的入场车
+	private void createNewCar(boolean suitableToCreate) {
+		if(suitableToCreate){
+			Car randomCar = CarFactory.produceCar(EmployeeDao.getInstance().getEmployeeAmount());
+			if(randomCar != null){
+				cars.add(randomCar);
+			}
+		}
 	}
 	
 	/**
@@ -221,6 +225,7 @@ public class Park {
 	
 	public static void main(String[] args){
 		PropertyConfigurator.configure("./config/log4j.properties");
-		new Park(20, 15).simulate();
+		EmployeeDao.getInstance().initEmployees(20);
+		new Park(15).simulate();
 	}
 }

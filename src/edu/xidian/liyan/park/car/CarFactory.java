@@ -1,5 +1,6 @@
 package edu.xidian.liyan.park.car;
 
+import edu.xidian.liyan.employee.Employee;
 import edu.xidian.liyan.park.access.EntranceReadCar;
 
 /**

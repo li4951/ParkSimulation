@@ -13,15 +13,15 @@ public class Access {
 	public final static int CLOSED = 0;
 	public final static int OPENED = 1;
 	
-	//使用具名常量作为operateType的三种type
-	public final static int READ = 0;
-	public final static int LIFT = 1;
-	public final static int DOWN = 2;
+	//使用枚举类型作为操作类型
+	public enum OperateType{
+		READ, LIFT, DOWN
+	};
 	
+	//当前关卡所进行的动作
+	private OperateType operateType; 
 	//关卡状态：OPENED或CLOSED
 	private int state;
-	//当前关卡所进行的动作
-	private int operateType;
 	//读卡所花时间,可以通过有参构造方法修改
 	private int readTime = 1;
 	//抬起栏杆所需时间,可以通过有参构造方法修改
@@ -35,7 +35,7 @@ public class Access {
 	//读卡完毕否
 	private boolean readOver;
 	//当前车辆是否通过
-	private boolean isPassed;
+	private boolean passed;
 	
     public Access() {
 		super();
@@ -62,16 +62,14 @@ public class Access {
 	public void setUsed(boolean used) {
 		this.used = used;
 	}
-
-	public void setOperateType(int operateType) {
-		this.operateType = operateType;
-		timeOperateBegin = Calendar.getInstance();
-	}
-	
-	public int getOperateType() {
+	public OperateType getOperateType() {
 		return operateType;
 	}
 
+	public void setOperateType(OperateType operateType) {
+		this.operateType = operateType;
+	}
+	
 	public int getState() {
 		return state;
 	}
@@ -81,11 +79,11 @@ public class Access {
 	}
 	
 	public boolean isPassed() {
-		return isPassed;
+		return passed;
 	}
 	
-	public void setPassed(boolean isPassed) {
-		this.isPassed = isPassed;
+	public void setPassed(boolean passed) {
+		this.passed = passed;
 	}
 	
 	/**
@@ -96,7 +94,9 @@ public class Access {
 			readOver = false;
 			return car.getEmployee().getId();
 		}else{
-			setOperateType(READ);//第一次被调用，发出读取命令
+			setOperateType(OperateType.READ);//第一次被调用，发出读取命令
+			timeOperateBegin = Calendar.getInstance();//重设当前状态车的起始时间
+			
 			setUsed(true);//‘标记开始使用’，下面有与之相对应的‘标记使用完毕’。
 			return "";
 		}
@@ -106,7 +106,8 @@ public class Access {
 	 * 发出抬起栏杆动作
 	 */
 	public String lift(){
-		setOperateType(LIFT);
+		setOperateType(OperateType.LIFT);
+		timeOperateBegin = Calendar.getInstance();//重设当前状态车的起始时间
 		return "";
 	}
 	
@@ -114,7 +115,8 @@ public class Access {
 	 * 发出放下栏杆动作
 	 */
 	public String down(){
-		setOperateType(DOWN);
+		setOperateType(OperateType.DOWN);
+		timeOperateBegin = Calendar.getInstance();//重设当前状态车的起始时间
 		return "";
 	}
 	

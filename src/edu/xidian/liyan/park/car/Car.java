@@ -2,6 +2,8 @@ package edu.xidian.liyan.park.car;
 
 import java.util.Calendar;
 
+import edu.xidian.liyan.employee.Employee;
+
 /**
  * 车辆抽象类
  * @author 李延
